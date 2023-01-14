@@ -58,5 +58,3 @@ module.exports = (app) => {
     }
   });
 };
-
-app.start();
