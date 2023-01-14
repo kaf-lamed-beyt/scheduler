@@ -10,7 +10,7 @@ module.exports = (app) => {
   // Your code here
   app.log.info("Yay, the app was loaded!");
 
-  app.on("issues.opened", async (context) => {
+  app.on("issue_comment.action", async (context) => {
     const { payload } = context;
     const commentAuthor = payload.sender.login;
     const commentBody = payload.comment.body;

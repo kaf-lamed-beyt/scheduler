@@ -6,3 +6,6 @@ npm-debug.log
 coverage
 lib
 .vercel
+
+# Local Netlify folder
+.netlify
