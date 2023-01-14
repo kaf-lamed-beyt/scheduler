@@ -1,0 +1,34 @@
+{
+  "name": "agba-merger",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A GitHub bot that helps you publish any feature in your project   or article in your developer blog, on a scheduled date/day",
+  "author": "kaf-lamed-beyt",
+  "license": "ISC",
+  "homepage": "https://github.com//",
+  "keywords": [
+    "probot",
+    "github",
+    "probot-app"
+  ],
+  "scripts": {
+    "start": "probot run ./index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@probot/adapter-aws-lambda-serverless": "^3.0.2",
+    "moment": "^2.29.4",
+    "probot": "^12.2.4"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "nock": "^13.0.5",
+    "smee-client": "^1.2.2"
+  },
+  "engines": {
+    "node": ">= 10.13.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  }
+}
