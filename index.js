@@ -59,9 +59,4 @@ module.exports = (app) => {
   });
 };
 
-// module.exports = (app) => {
-//   probot.load(mergeBot());
-// };
-
-// app.start();
-// mergeBot(app);
+app.start();
