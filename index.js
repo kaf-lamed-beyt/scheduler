@@ -4,66 +4,72 @@
  */
 const moment = require("moment");
 
-const BOT_USERNAME = "agba-merger";
+app.on("issue_comment.created", async (context) => {
+  // Extract the username, "merge" keyword, and date format from the comment body
+  const comment = context.payload.comment.body;
+  const username = context.payload.comment.user.login;
+  const mergeKeyword = "merge";
+  const dateFormat = /\d{4}-\d{2}-\d{2}/;
 
-module.exports = (app) => {
-  // Your code here
-  app.log.info("Yay, the app was loaded!");
-
-  app.on("issue_comment", async (context) => {
-    const { payload } = context;
-
-    if (
-      payload.action === "opened" &&
-      payload.pull_request.state === "opened"
-    ) {
-      const commentAuthor = payload.sender.login;
-      const commentBody = payload.comment.body;
-      const pullRequestNumber = payload.issue.number;
-      const repoName = payload.repository.name;
-      const repoOwner = payload.repository.owner.login;
-
-      if (!commentBody.includes(`@${BOT_USERNAME} merge`)) {
-        return;
-      }
-
-      const dateFormat = "YYYY-MM-DD";
-      const scheduledDate = moment(
-        commentBody.match(dateFormat)[0],
-        dateFormat
+  if (
+    comment.includes(`@${app.appName}`) &&
+    comment.includes(mergeKeyword) &&
+    comment.match(dateFormat)
+  ) {
+    // Extract the scheduled date from the comment and parse it using moment
+    const scheduledDate = moment(comment.match(dateFormat)[0]);
+    // Check if the scheduled date is in the future
+    if (scheduledDate.isAfter(moment())) {
+      // Check if the user has permission to merge pull requests in the repository
+      const repo = context.payload.repository;
+      const { data: collaborators } =
+        await context.github.repos.listCollaborators({
+          owner: repo.owner.login,
+          repo: repo.name,
+        });
+      const hasPermission = collaborators.find(
+        (collaborator) => collaborator.login === username
       );
-      if (!scheduledDate.isValid()) {
-        context.github.issues.createComment({
-          owner: repoOwner,
-          repo: repoName,
-          issue_number: pullRequestNumber,
-          body: `@${commentAuthor} Invalid date format. Use YYYY-MM-DD.`,
-        });
-        return;
-      }
-
-      if (scheduledDate.isAfter(moment())) {
-        context.github.issues.createComment({
-          owner: repoOwner,
-          repo: repoName,
-          issue_number: pullRequestNumber,
-          body: `@${commentAuthor} Merge scheduled for ${scheduledDate.format(
-            dateFormat
-          )}.`,
-        });
+      if (hasPermission) {
+        // Respond with a comment confirming that the merge request has been scheduled
+        await context.github.issues.createComment(
+          context.issue({
+            body: `Hey @${username}, your merge request has been scheduled for ${scheduledDate.format(
+              "YYYY-MM-DD"
+            )}`,
+          })
+        );
+        // Schedule the merge request
+        scheduleMergeRequest(context, scheduledDate);
       } else {
-        context.github.pulls.merge({
-          owner: repoOwner,
-          repo: repoName,
-          pull_number: pullRequestNumber,
-        });
-        context.github.issues.createComment({
-          owner: repoOwner,
-          repo: repoName,
-          issue_number: pullRequestNumber,
-          body: `@${commentAuthor} Pull request merged.`,
-        });
+        // Respond with a comment telling the user they do not have permission
+        await context.github.issues.createComment(
+          context.issue({
+            body: `Hey @${username}, you do not have permission to merge pull requests in this repository`,
+          })
+        );
       }
+    } else {
+      await context.github.issues.createComment(
+        context.issue({
+          body: `Hey @${username}, the date is not in the future.`,
+        })
+      );
     }
-  });
+  }
+});
+
+const scheduleMergeRequest = async (context, scheduledDate) => {
+  var waitTime = scheduledDate.diff(moment());
+  setTimeout(async () => {
+    // Check if the pull request is still open
+    const pr = context.payload.pull_request;
+    if (pr.state === "open") {
+      // Merge the pull request
+      await context.github.pulls.merge(context.pullRequest({}));
+      console.log("Merged at :", moment().format());
+    }
+  }, waitTime);
 };
+
+module.exports = app;
