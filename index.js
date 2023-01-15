@@ -12,49 +12,58 @@ module.exports = (app) => {
 
   app.on("issue_comment.action", async (context) => {
     const { payload } = context;
-    const commentAuthor = payload.sender.login;
-    const commentBody = payload.comment.body;
-    const pullRequestNumber = payload.issue.number;
-    const repoName = payload.repository.name;
-    const repoOwner = payload.repository.owner.login;
 
-    if (!commentBody.includes(`@${BOT_USERNAME} merge`)) {
-      return;
-    }
+    if (
+      payload.action === "opened" &&
+      payload.pull_request.state === "opened"
+    ) {
+      const commentAuthor = payload.sender.login;
+      const commentBody = payload.comment.body;
+      const pullRequestNumber = payload.issue.number;
+      const repoName = payload.repository.name;
+      const repoOwner = payload.repository.owner.login;
 
-    const dateFormat = "YYYY-MM-DD";
-    const scheduledDate = moment(commentBody.match(dateFormat)[0], dateFormat);
-    if (!scheduledDate.isValid()) {
-      context.github.issues.createComment({
-        owner: repoOwner,
-        repo: repoName,
-        issue_number: pullRequestNumber,
-        body: `@${commentAuthor} Invalid date format. Use YYYY-MM-DD.`,
-      });
-      return;
-    }
+      if (!commentBody.includes(`@${BOT_USERNAME} merge`)) {
+        return;
+      }
 
-    if (scheduledDate.isAfter(moment())) {
-      context.github.issues.createComment({
-        owner: repoOwner,
-        repo: repoName,
-        issue_number: pullRequestNumber,
-        body: `@${commentAuthor} Merge scheduled for ${scheduledDate.format(
-          dateFormat
-        )}.`,
-      });
-    } else {
-      context.github.pulls.merge({
-        owner: repoOwner,
-        repo: repoName,
-        pull_number: pullRequestNumber,
-      });
-      context.github.issues.createComment({
-        owner: repoOwner,
-        repo: repoName,
-        issue_number: pullRequestNumber,
-        body: `@${commentAuthor} Pull request merged.`,
-      });
+      const dateFormat = "YYYY-MM-DD";
+      const scheduledDate = moment(
+        commentBody.match(dateFormat)[0],
+        dateFormat
+      );
+      if (!scheduledDate.isValid()) {
+        context.github.issues.createComment({
+          owner: repoOwner,
+          repo: repoName,
+          issue_number: pullRequestNumber,
+          body: `@${commentAuthor} Invalid date format. Use YYYY-MM-DD.`,
+        });
+        return;
+      }
+
+      if (scheduledDate.isAfter(moment())) {
+        context.github.issues.createComment({
+          owner: repoOwner,
+          repo: repoName,
+          issue_number: pullRequestNumber,
+          body: `@${commentAuthor} Merge scheduled for ${scheduledDate.format(
+            dateFormat
+          )}.`,
+        });
+      } else {
+        context.github.pulls.merge({
+          owner: repoOwner,
+          repo: repoName,
+          pull_number: pullRequestNumber,
+        });
+        context.github.issues.createComment({
+          owner: repoOwner,
+          repo: repoName,
+          issue_number: pullRequestNumber,
+          body: `@${commentAuthor} Pull request merged.`,
+        });
+      }
     }
   });
 };
