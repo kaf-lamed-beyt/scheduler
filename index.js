@@ -26,17 +26,14 @@ module.exports = (app) => {
       if (scheduledDate.isAfter(moment())) {
         // Check if the user has permission to merge pull requests in the repository
         const repo = context.payload.repository;
-
         const { data: collaborators } =
           await context.github.repos.listCollaborators({
             owner: repo.owner.login,
             repo: repo.name,
           });
-
         const hasPermission = collaborators.find(
           (collaborator) => collaborator.login === username
         );
-
         if (hasPermission) {
           // Respond with a comment confirming that the merge request has been scheduled
           await context.github.issues.createComment(
@@ -66,7 +63,6 @@ module.exports = (app) => {
     }
   });
 };
-
 const scheduleMergeRequest = async (context, scheduledDate) => {
   var waitTime = scheduledDate.diff(moment());
   setTimeout(async () => {
