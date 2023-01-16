@@ -25,7 +25,7 @@ module.exports = (app) => {
       // Check if the scheduled date is in the future
       if (scheduledDate.isAfter(moment())) {
         // Check if the user has permission to merge pull requests in the repository
-        const repo = context.repo();
+        const repo = context.repo;
 
         const { data: collaborators } =
           await context.github.repos.listCollaborators({
