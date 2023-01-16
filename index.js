@@ -23,7 +23,7 @@ module.exports = (app) => {
       scheduledDateMatch
     ) {
       // Extract the scheduled date from the comment and parse it using moment
-      const scheduledDate = moment(scheduledDateMatch[1], dateFormat);
+      const scheduledDate = moment(scheduledDateMatch[1]);
       // Check if the scheduled date is in the future
       if (scheduledDate.isAfter(moment())) {
         // Check if the user has permission to merge pull requests in the repository
