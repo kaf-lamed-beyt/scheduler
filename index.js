@@ -24,7 +24,7 @@ module.exports = (app) => {
         // Check if the user has permission to merge pull requests in the repository
         const repo = context.payload.repository;
         const { data: collaborators } =
-          await context.github.repos.listCollaborators({
+          await context.octokit.repos.listCollaborators({
             owner: repo.owner.login,
             repo: repo.name,
           });
@@ -33,7 +33,7 @@ module.exports = (app) => {
         );
         if (hasPermission) {
           // Respond with a comment confirming that the merge request has been scheduled
-          await context.github.issues.createComment(
+          await context.octokit.issues.createComment(
             context.issue({
               body: `Hey @${username}, your merge request has been scheduled for ${scheduledDate.format(
                 "YYYY-MM-DD"
@@ -44,14 +44,14 @@ module.exports = (app) => {
           scheduleMergeRequest(context, scheduledDate);
         } else {
           // Respond with a comment telling the user they do not have permission
-          await context.github.issues.createComment(
+          await context.octokit.issues.createComment(
             context.issue({
               body: `Hey @${username}, you do not have permission to merge pull requests in this repository`,
             })
           );
         }
       } else {
-        await context.github.issues.createComment(
+        await context.octokit.issues.createComment(
           context.issue({
             body: `Hey @${username}, the date is not in the future.`,
           })
@@ -67,7 +67,7 @@ module.exports = (app) => {
       const pr = context.payload.pull_request;
       if (pr.state === "open") {
         // Merge the pull request
-        await context.github.pulls.merge(context.pullRequest({}));
+        await context.octokit.pulls.merge(context.pullRequest({}));
         console.log("Merged at :", moment().format());
       }
     }, waitTime);
