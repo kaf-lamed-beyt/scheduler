@@ -13,13 +13,15 @@ module.exports = (app) => {
     const mergeKeyword = "merge";
     const dateFormat = /\d{4}-\d{2}-\d{2}/;
 
+    const scheduledDateMatch = comment.match(/on (\d{4}-\d{2}-\d{2})/);
+
     if (
       comment.includes(`@${appName}`) &&
       comment.includes(mergeKeyword) &&
-      comment.match(dateFormat)
+      comment.match(scheduledDateMatch)
     ) {
       // Extract the scheduled date from the comment and parse it using moment
-      const scheduledDate = moment(comment.match(dateFormat)[0]);
+      const scheduledDate = moment(scheduledDateMatch[1], dateFormat);
       // Check if the scheduled date is in the future
       if (scheduledDate.isAfter(moment())) {
         // Check if the user has permission to merge pull requests in the repository
