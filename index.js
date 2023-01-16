@@ -3,6 +3,7 @@
  * @param {import('probot').Probot} app
  */
 const moment = require("moment");
+const appName = "agba-merger";
 
 module.exports = (app) => {
   app.on("issue_comment.created", async (context) => {
@@ -13,7 +14,7 @@ module.exports = (app) => {
     const dateFormat = /\d{4}-\d{2}-\d{2}/;
 
     if (
-      comment.includes(`@${app.appName}`) &&
+      comment.includes(`@${appName}`) &&
       comment.includes(mergeKeyword) &&
       comment.match(dateFormat)
     ) {
@@ -24,7 +25,7 @@ module.exports = (app) => {
         // Check if the user has permission to merge pull requests in the repository
         const repo = context.payload.repository;
         const { data: collaborators } =
-          await context.octokit.repos.listCollaborators({
+          await context.github.repos.listCollaborators({
             owner: repo.owner.login,
             repo: repo.name,
           });
@@ -33,7 +34,7 @@ module.exports = (app) => {
         );
         if (hasPermission) {
           // Respond with a comment confirming that the merge request has been scheduled
-          await context.octokit.issues.createComment(
+          await context.github.issues.createComment(
             context.issue({
               body: `Hey @${username}, your merge request has been scheduled for ${scheduledDate.format(
                 "YYYY-MM-DD"
@@ -44,14 +45,14 @@ module.exports = (app) => {
           scheduleMergeRequest(context, scheduledDate);
         } else {
           // Respond with a comment telling the user they do not have permission
-          await context.octokit.issues.createComment(
+          await context.github.issues.createComment(
             context.issue({
               body: `Hey @${username}, you do not have permission to merge pull requests in this repository`,
             })
           );
         }
       } else {
-        await context.octokit.issues.createComment(
+        await context.github.issues.createComment(
           context.issue({
             body: `Hey @${username}, the date is not in the future.`,
           })
@@ -67,7 +68,7 @@ module.exports = (app) => {
       const pr = context.payload.pull_request;
       if (pr.state === "open") {
         // Merge the pull request
-        await context.octokit.pulls.merge(context.pullRequest({}));
+        await context.github.pulls.merge(context.pullRequest({}));
         console.log("Merged at :", moment().format());
       }
     }, waitTime);
