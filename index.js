@@ -20,6 +20,7 @@ module.exports = (app) => {
       comment.includes(mergeKeyword) &&
       scheduledDateMatch
     ) {
+      const octokit = context.github;
       // Extract the scheduled date from the comment and parse it using moment
       const scheduledDate = moment(scheduledDateMatch[1]);
       // Check if the scheduled date is in the future
@@ -28,9 +29,9 @@ module.exports = (app) => {
         const { data: collaborators } = await context.github.request(
           "GET /repos/{owner}/{repo}/collaborators/{username}",
           {
-            owner: context.payload.repository.owner.login,
-            repo: context.payload.respository.name,
-            username: context.payload.comment.user.login,
+            owner: repo.owner.login,
+            repo: repo.name,
+            username: username,
           }
         );
 
