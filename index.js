@@ -15,12 +15,12 @@ module.exports = (app) => {
 
     context.octokit;
 
-    const scheduledDateMatch = comment.match(/on (\d{4}-\d{2}-\d{2})/);
+    const scheduledDateMatch = comment.match(/ (\d{4}-\d{2}-\d{2})/);
 
     if (
       comment.includes(`@${appName}`) &&
       comment.includes(mergeKeyword) &&
-      comment.match(scheduledDateMatch)
+      scheduledDateMatch
     ) {
       // Extract the scheduled date from the comment and parse it using moment
       const scheduledDate = moment(scheduledDateMatch[1], dateFormat);
@@ -38,9 +38,9 @@ module.exports = (app) => {
         );
         if (hasPermission) {
           // Respond with a comment confirming that the merge request has been scheduled
-          await context.octokit.issues.createComment(
+          await context.github.issues.createComment(
             context.issue({
-              body: `Hey @${username}, your merge request has been scheduled for ${scheduledDate.format(
+              body: `Hi @${username}, your merge request has been scheduled for ${scheduledDate.format(
                 "YYYY-MM-DD"
               )}`,
             })
@@ -49,14 +49,14 @@ module.exports = (app) => {
           scheduleMergeRequest(context, scheduledDate);
         } else {
           // Respond with a comment telling the user they do not have permission
-          await context.octokit.issues.createComment(
+          await context.github.issues.createComment(
             context.issue({
-              body: `Hey @${username}, you do not have permission to merge pull requests in this repository`,
+              body: `Hi @${username}, you do not have permission to merge pull requests in this repository`,
             })
           );
         }
       } else {
-        await context.octokit.issues.createComment(
+        await context.github.issues.createComment(
           context.issue({
             body: `Hey @${username}, the date is not in the future.`,
           })
