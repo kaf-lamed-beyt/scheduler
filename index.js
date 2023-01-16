@@ -35,7 +35,7 @@ module.exports = (app) => {
 
         if (author_association === "OWNER" || "COLLABORATOR") {
           // Respond with a comment confirming that the merge request has been scheduled
-          await context.github.issues.createComment(
+          await context.github.issue.createComment(
             context.issue({
               body: `Hi @${username}, your merge request has been scheduled for ${scheduledDate.format(
                 "YYYY-MM-DD"
@@ -46,14 +46,14 @@ module.exports = (app) => {
           scheduleMergeRequest(context, scheduledDate);
         } else {
           // Respond with a comment telling the user they do not have permission
-          await context.github.issues.createComment(
+          await context.github.issue.createComment(
             context.issue({
               body: `Hi @${username}, you do not have permission to merge pull requests in this repository`,
             })
           );
         }
       } else {
-        await context.github.issues.createComment(
+        await context.github.issue.createComment(
           context.issue({
             body: `Hey @${username}, the date is not in the future.`,
           })
