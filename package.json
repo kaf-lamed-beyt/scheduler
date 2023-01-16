@@ -12,8 +12,7 @@
     "probot-app"
   ],
   "scripts": {
-    "start": "probot run ./index.js",
-    "test": "jest"
+    "start": "probot run ./index.js"
   },
   "dependencies": {
     "@probot/adapter-aws-lambda-serverless": "^3.0.2",
@@ -21,7 +20,6 @@
     "probot": "^12.2.4"
   },
   "devDependencies": {
-    "jest": "^29.0.0",
     "nock": "^13.0.5",
     "smee-client": "^1.2.2"
   },
