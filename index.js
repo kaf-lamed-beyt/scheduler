@@ -28,7 +28,7 @@ module.exports = (app) => {
         const repo = context.payload.repository;
 
         const { data: collaborators } =
-          await context.github.repo.listCollaborators({
+          await context.github.repos.listCollaborators({
             owner: repo.owner.login,
             repo: repo.name,
           });
@@ -36,6 +36,7 @@ module.exports = (app) => {
         const hasPermission = collaborators.find(
           (collaborator) => collaborator.login === username
         );
+
         if (hasPermission) {
           // Respond with a comment confirming that the merge request has been scheduled
           await context.github.issues.createComment(
