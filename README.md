@@ -2,6 +2,8 @@
 
 > A GitHub bot that helps you publish any feature in your project or article in your developer blog, on a scheduled date/day
 
+## Usage
+
 ## Setup
 
 ```sh
