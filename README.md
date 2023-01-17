@@ -1,6 +1,6 @@
 # agba-merger
 
-> A GitHub App built with [Probot](https://github.com/probot/probot) that A GitHub bot that helps you publish any feature in your project   or article in your developer blog, on a scheduled date/day
+> A GitHub bot that helps you publish any feature in your project or article in your developer blog, on a scheduled date/day
 
 ## Setup
 
@@ -30,4 +30,4 @@ For more, check out the [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
-[ISC](LICENSE) © 2023 kaf-lamed-beyt
+[MIT](LICENSE) © 2023 kaf-lamed-beyt

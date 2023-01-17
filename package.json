@@ -4,7 +4,7 @@
   "private": true,
   "description": "A GitHub bot that helps you publish any feature in your project   or article in your developer blog, on a scheduled date/day",
   "author": "kaf-lamed-beyt",
-  "license": "ISC",
+  "license": "MIT",
   "homepage": "https://github.com//",
   "keywords": [
     "probot",
