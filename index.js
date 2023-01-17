@@ -35,7 +35,7 @@ module.exports = (app) => {
 
         if (author_association === "OWNER" || "COLLABORATOR") {
           // Respond with a comment confirming that the merge request has been scheduled
-          await context.octokit.issue.createComment(
+          await context.octokit.issues.createComment(
             context.issue({
               body: `Hi @${username}, your merge request has been scheduled for ${scheduledDate.format(
                 "YYYY-MM-DD"
