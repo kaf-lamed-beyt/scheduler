@@ -2,6 +2,8 @@
 
 > A GitHub bot that helps you publish any feature in your project or article in your developer blog, on a scheduled date/day
 
+![agba merger](/public/img/agba-merger-prompt.png)
+
 ## Usage
 
 To use this bot, you'll have to [install it from GitHub's Marketplace](https://github.com/marketplace/agba-merger). Make sure you give it access to the scopes it is requesting for.
