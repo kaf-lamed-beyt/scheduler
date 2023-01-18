@@ -2,6 +2,7 @@
  * This is the main entrypoint to your Probot app
  * @param {import('probot').Probot} app
  */
+const cron = require("node-cron");
 const moment = require("moment");
 const appName = "agba-merger";
 
@@ -62,15 +63,48 @@ module.exports = (app) => {
     }
   });
 };
+
 const scheduleMergeRequest = async (context, scheduledDate) => {
-  var waitTime = scheduledDate.diff(moment());
-  setTimeout(async () => {
+  if (scheduledDate.isSameOrBefore(moment())) {
+    // Check if the scheduled date is today or in the past
     // Check if the pull request is still open
     const pr = context.payload.pull_request;
     if (pr.state === "open") {
       // Merge the pull request
       await context.github.pulls.merge(context.pull_request({}));
-      console.log("Merged at :", moment().format());
+      await context.octokit.issues.createComment(
+        context.issue({
+          body: `Hi @${username}, your pull request was merged at ${moment().format()}`,
+        })
+      );
     }
-  }, waitTime);
+  } else {
+    const schedule = scheduledDate.format("s m H D M"); // format the scheduled date to match cron schedule format
+    cron.schedule(schedule, async () => {
+      // Check if the pull request is still open
+      const pr = context.payload.pull_request;
+      if (pr.state === "open") {
+        // Merge the pull request
+        await context.github.pulls.merge(context.pull_request({}));
+        await context.octokit.issues.createComment(
+          context.issue({
+            body: `Hi @${username}, your pull request was merged at ${moment().format()}`,
+          })
+        );
+      }
+    });
+  }
 };
+
+// const scheduleMergeRequest = async (context, scheduledDate) => {
+//   var waitTime = scheduledDate.diff(moment());
+//   setTimeout(async () => {
+//     // Check if the pull request is still open
+//     const pr = context.payload.pull_request;
+//     if (pr.state === "open") {
+//       // Merge the pull request
+//       await context.github.pulls.merge(context.pull_request({}));
+//       console.log("Merged at :", moment().format());
+//     }
+//   }, waitTime);
+// };
