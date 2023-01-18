@@ -4,6 +4,16 @@
 
 ## Usage
 
+To use this bot, you'll have to [install it from GitHub's Marketplace](https://github.com/marketplace/agba-merger). Make sure you give it access to the scopes it is requesting for.
+
+When you have a pull request that you want to schedule with the help of the bot, simply call its attention to that PR by typing the following in the PR's comment:
+
+```md
+"Yo! **@agba-merger**, please **merge** this pull request on **2023-01-22**"
+```
+
+You can choose to construct this sentence in any manner that seems appropriate to you. The keywords you shouldn't leave out are the name of the bot **@agba-merger**, the **merge**, and your date in **"YYYY-MM-DD** format.
+
 ## Setup
 
 ```sh

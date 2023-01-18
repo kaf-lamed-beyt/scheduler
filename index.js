@@ -21,7 +21,6 @@ module.exports = (app) => {
       comment.includes(mergeKeyword) &&
       scheduledDateMatch
     ) {
-      const octokit = context.github;
       // Extract the scheduled date from the comment and parse it using moment
       const scheduledDate = moment(scheduledDateMatch[1]);
       // Check if the scheduled date is in the future
@@ -95,16 +94,3 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     });
   }
 };
-
-// const scheduleMergeRequest = async (context, scheduledDate) => {
-//   var waitTime = scheduledDate.diff(moment());
-//   setTimeout(async () => {
-//     // Check if the pull request is still open
-//     const pr = context.payload.pull_request;
-//     if (pr.state === "open") {
-//       // Merge the pull request
-//       await context.github.pulls.merge(context.pull_request({}));
-//       console.log("Merged at :", moment().format());
-//     }
-//   }, waitTime);
-// };
