@@ -66,8 +66,8 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     issue: { number },
   } = context.payload;
 
-  if (scheduledDate.isSameOrBefore(moment())) {
-    // Check if the scheduled date is today or in the past
+  if (scheduledDate.isSame(moment())) {
+    // Check if the scheduled date is today
     // Check if the pull request is still open
     if (state === "open") {
       // Merge the pull request
