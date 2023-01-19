@@ -96,7 +96,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     })
   );
 
-  if (scheduledDate.isSameOrBefore(moment())) {
+  if (scheduledDate.isToday()) {
     // Check if the scheduled date is today
     if (pullRequest.state === "open") {
       // Merge the pull request
@@ -116,7 +116,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     }
   } else {
     // format the scheduled date to match cron schedule format
-    const schedule = `${scheduledDate.seconds()} ${scheduledDate.minutes()} ${scheduledDate.hours()} ${scheduledDate.date()} ${scheduledDate.month()} *`;
+    const schedule = `${scheduledDate.seconds()} ${scheduledDate.minutes()} ${scheduledDate.hours()} ${scheduledDate.date()} ${scheduledDate.month()}`;
 
     cron.schedule(schedule, async () => {
       if (pullRequest.state === "open") {
