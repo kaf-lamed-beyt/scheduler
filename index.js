@@ -33,7 +33,10 @@ module.exports = (app) => {
           },
         } = context;
 
-        if (author_association === "OWNER" || "COLLABORATOR") {
+        if (
+          author_association === "OWNER" ||
+          author_association === "COLLABORATOR"
+        ) {
           // Respond with a comment confirming that the merge request has been scheduled
           await context.octokit.issues.createComment(
             context.issue({
@@ -84,17 +87,17 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     repository: { name },
   } = context.payload;
 
-  if (scheduledDate.isSame(moment())) {
-    // Check if the scheduled date is today
-    // Check if the pull request is still open
-    const { data: pullRequest } = await context.github.pulls.get(
-      context.repo({
-        issue_number: number,
-        owner: login,
-        repo: name,
-      })
-    );
+  // Check if the pull request is still open
+  const { data: pullRequest } = await context.github.pulls.get(
+    context.repo({
+      issue_number: number,
+      owner: login,
+      repo: name,
+    })
+  );
 
+  if (scheduledDate.isSameOrBefore(moment())) {
+    // Check if the scheduled date is today
     if (pullRequest.state === "open") {
       // Merge the pull request
       await context.github.pullRequests.merge(
@@ -112,12 +115,16 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
       );
     }
   } else {
-    const schedule = scheduledDate.format("s m H D M"); // format the scheduled date to match cron schedule format
+    // format the scheduled date to match cron schedule format
+    const schedule = `${scheduledDate.seconds()} ${scheduledDate.minutes()} ${scheduledDate.hours()} ${scheduledDate.date()} ${scheduledDate.month()} *`;
+
     cron.schedule(schedule, async () => {
-      if (state === "open") {
+      if (pullRequest.state === "open") {
         await context.github.pullRequests.merge(
           context.repo({
-            number,
+            issue_number: number,
+            repo: name,
+            owner: login,
           })
         );
 
