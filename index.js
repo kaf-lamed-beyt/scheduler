@@ -1,5 +1,5 @@
 /**
- * This is the main entrypoint to your Probot app
+ * This is the main entrypoint to my Probot app
  * @param {import('probot').Probot} app
  */
 const cron = require("node-cron");
@@ -74,12 +74,36 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     issue: { number },
   } = context.payload;
 
+  const {
+    repository: {
+      owner: { login },
+    },
+  } = context.payload;
+
+  const {
+    repository: { name },
+  } = context.payload;
+
   if (scheduledDate.isSame(moment())) {
     // Check if the scheduled date is today
     // Check if the pull request is still open
-    if (state === "open") {
+    const { data: pullRequest } = await context.github.pulls.get(
+      context.repo({
+        issue_number: number,
+        owner: login,
+        repo: name,
+      })
+    );
+
+    if (pullRequest.state === "open") {
       // Merge the pull request
-      await context.github.pullRequests.merge(context.repo({ number }));
+      await context.github.pullRequests.merge(
+        context.repo({
+          issue_number: number,
+          owner: login,
+          repo: name,
+        })
+      );
 
       await context.octokit.issues.createComment(
         context.issue({
