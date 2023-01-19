@@ -59,6 +59,14 @@ module.exports = (app) => {
 
 const scheduleMergeRequest = async (context, scheduledDate) => {
   const {
+    comment: {
+      user: {
+        login: { username },
+      },
+    },
+  } = context.payload;
+
+  const {
     issue: { state },
   } = context.payload;
 
