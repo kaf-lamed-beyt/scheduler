@@ -52,25 +52,27 @@ module.exports = (app) => {
             })
           );
         }
-      } else {
-        await context.octokit.issues.createComment(
-          context.issue({
-            body: `Hey @${username}, the date is not in the future.`,
-          })
-        );
       }
     }
   });
 };
 
 const scheduleMergeRequest = async (context, scheduledDate) => {
+  const {
+    issue: { state },
+  } = context.payload;
+
+  const {
+    issue: { number },
+  } = context.payload;
+
   if (scheduledDate.isSameOrBefore(moment())) {
     // Check if the scheduled date is today or in the past
     // Check if the pull request is still open
-    const pr = context.payload.pull_request;
-    if (pr.state === "open") {
+    if (state === "open") {
       // Merge the pull request
-      await context.github.pulls.merge(context.pull_request({}));
+      await context.github.pullRequests.merge(context.repo({ number }));
+
       await context.octokit.issues.createComment(
         context.issue({
           body: `Hi @${username}, your pull request was merged at ${moment().format()}`,
@@ -80,11 +82,13 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
   } else {
     const schedule = scheduledDate.format("s m H D M"); // format the scheduled date to match cron schedule format
     cron.schedule(schedule, async () => {
-      // Check if the pull request is still open
-      const pr = context.payload.pull_request;
-      if (pr.state === "open") {
-        // Merge the pull request
-        await context.github.pulls.merge(context.pull_request({}));
+      if (state === "open") {
+        await context.github.pullRequests.merge(
+          context.repo({
+            number,
+          })
+        );
+
         await context.octokit.issues.createComment(
           context.issue({
             body: `Hi @${username}, your pull request was merged at ${moment().format()}`,
