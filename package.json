@@ -18,6 +18,7 @@
     "@probot/adapter-aws-lambda-serverless": "^3.0.2",
     "moment": "^2.29.4",
     "node-cron": "^3.0.2",
+    "node-schedule": "^2.1.1",
     "probot": "^12.2.4"
   },
   "devDependencies": {

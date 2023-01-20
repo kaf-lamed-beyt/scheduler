@@ -3,6 +3,7 @@
  * @param {import('probot').Probot} app
  */
 const cron = require("node-cron");
+const schedule = require("node-schedule");
 const moment = require("moment");
 const APP_NAME = "agba-merger";
 
@@ -79,11 +80,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
       scheduledDate.isSameOrAfter(TODAY) &&
       scheduledDate.isBefore(TOMORROW)
     ) {
-      const schedule = `${COMMENT_TIME.minutes()} ${COMMENT_TIME.hours()} ${COMMENT_TIME.date()} ${
-        COMMENT_TIME.month() + 1
-      } ${COMMENT_TIME.day() === 0 ? 7 : COMMENT_TIME.day()}`;
-
-      cron.schedule(schedule, async () => {
+      schedule.scheduleJob(scheduledDate, async () => {
         if (PR_STATE === "open") {
           // Merge the pull request
           await context.octokit.rest.pulls.merge(
@@ -102,12 +99,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
         }
       });
     } else {
-      // format the scheduled date to match cron schedule format
-      const schedule = `${scheduledDate.minutes()} ${scheduledDate.hours()} ${scheduledDate.date()} ${
-        scheduledDate.month() + 1
-      } ${scheduledDate.day() === 0 ? 7 : scheduledDate.day()}`;
-
-      cron.schedule(schedule, async () => {
+      schedule.scheduleJob(scheduledDate, async () => {
         if (PR_STATE === "open") {
           await context.octokit.rest.pulls.merge(
             context.repo({
