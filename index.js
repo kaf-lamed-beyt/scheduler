@@ -102,7 +102,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     setTimeout(async () => {
       if (pullRequest.state === "open") {
         // Merge the pull request
-        await context.octokit.pulls.merge(
+        await context.octokit.rest.pulls.merge(
           context.repo({
             pull_number: number,
             owner: login,
@@ -125,7 +125,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
 
     cron.schedule(schedule, async () => {
       if (pullRequest.state === "open") {
-        await context.octokit.pulls.merge(
+        await context.octokit.rest.pulls.merge(
           context.repo({
             pull_number: number,
             repo: name,
