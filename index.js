@@ -88,41 +88,46 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
   } = context.payload;
 
   // Check if the pull request is still open
-  const { data: pullRequest } = await context.github.pulls.get(
+  const { data: pullRequest } = await context.github.pullRequests.get(
     context.repo({
-      issue_number: number,
+      pull_number: number,
       owner: login,
       repo: name,
     })
   );
 
-  if (scheduledDate.isToday()) {
-    // Check if the scheduled date is today
-    if (pullRequest.state === "open") {
-      // Merge the pull request
-      await context.github.pullRequests.merge(
-        context.repo({
-          issue_number: number,
-          owner: login,
-          repo: name,
-        })
-      );
+  const MINUTES_AFTER_COMMENT = 3;
 
-      await context.octokit.issues.createComment(
-        context.issue({
-          body: `Hi @${username}, your pull request was merged at ${moment().format()}`,
-        })
-      );
-    }
+  if (scheduledDate.isSame(moment(), "day")) {
+    setTimeout(async () => {
+      if (pullRequest.state === "open") {
+        // Merge the pull request
+        await context.github.pullRequests.merge(
+          context.repo({
+            pull_number: number,
+            owner: login,
+            repo: name,
+          })
+        );
+
+        await context.octokit.issues.createComment(
+          context.issue({
+            body: `Hi @${username}, your pull request was merged at ${moment().format()}`,
+          })
+        );
+      }
+    }, MINUTES_AFTER_COMMENT);
   } else {
     // format the scheduled date to match cron schedule format
-    const schedule = `${scheduledDate.seconds()} ${scheduledDate.minutes()} ${scheduledDate.hours()} ${scheduledDate.date()} ${scheduledDate.month()}`;
+    const schedule = `${scheduledDate.hours()} ${scheduledDate.date()} ${
+      scheduledDate.month() + 1
+    } ${scheduledDate.day()} *`;
 
     cron.schedule(schedule, async () => {
       if (pullRequest.state === "open") {
         await context.github.pullRequests.merge(
           context.repo({
-            issue_number: number,
+            pull_number: number,
             repo: name,
             owner: login,
           })
