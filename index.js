@@ -68,10 +68,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
   try {
     const USERNAME = context.payload.comment.user.login;
     const PR_STATE = context.payload.issue.state;
-    const OWNER = context.payload.repository.owner.login;
-    const REPO_NAME = context.payload.repository.name;
     const ISSUE_NUMBER = context.payload.issue.number;
-
     const COMMENT_TIME = moment(context.payload.comment.created_at);
     const TODAY = moment().startOf("day");
     const TOMORROW = moment(TODAY).add(1, "days");
@@ -83,31 +80,11 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
       schedule.scheduleJob(scheduledDate, async () => {
         if (PR_STATE === "open") {
           // Merge the pull request
-          await context.octokit.rest.pulls.merge(
-            context.repo({
-              pull_number: ISSUE_NUMBER,
-              owner: OWNER,
-              repo: REPO_NAME,
-            })
-          );
-
-          await context.octokit.issues.createComment(
-            context.issue({
-              body: `Hi @${USERNAME}, your pull request was merged at ${moment().format()}`,
-            })
-          );
-        }
-      });
-    } else {
-      schedule.scheduleJob(scheduledDate, async () => {
-        if (PR_STATE === "open") {
-          await context.octokit.rest.pulls.merge(
-            context.repo({
-              pull_number: ISSUE_NUMBER,
-              repo: REPO_NAME,
-              owner: OWNER,
-            })
-          );
+          await context.octokit.pulls.merge({
+            owner: context.payload.repository.owner.login,
+            repo: context.payload.repository.name,
+            pull_number: ISSUE_NUMBER,
+          });
 
           await context.octokit.issues.createComment(
             context.issue({
