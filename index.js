@@ -69,7 +69,6 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     const USERNAME = context.payload.comment.user.login;
     const PR_STATE = context.payload.issue.state;
     const ISSUE_NUMBER = context.payload.issue.number;
-    const COMMENT_TIME = moment(context.payload.comment.created_at);
     const TODAY = moment().startOf("day");
     const TOMORROW = moment(TODAY).add(1, "days");
 
@@ -77,7 +76,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
       scheduledDate.isSameOrAfter(TODAY) &&
       scheduledDate.isBefore(TOMORROW)
     ) {
-      schedule.scheduleJob(scheduledDate, async () => {
+      schedule.scheduleJob(scheduledDate.toDate(), async () => {
         if (PR_STATE === "open") {
           // Merge the pull request
           await context.octokit.pulls.merge({
