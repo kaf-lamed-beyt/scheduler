@@ -52,6 +52,17 @@ module.exports = (app) => {
           }
         }
       }
+      if (
+        COMMENT.includes(APP_NAME) &&
+        COMMENT.includes(!MERGE_KEYWORD) &&
+        COMMENT.includes(!scheduledDateMatch)
+      ) {
+        await context.octokit.issues.createComment(
+          context.issue({
+            body: `Hi @${USERNAME}, you need to pass the 'merge' keyword and the date you'd want this pull request to be merged`,
+          })
+        );
+      }
     } catch (error) {
       console.error(error);
 
@@ -69,30 +80,24 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     const USERNAME = context.payload.comment.user.login;
     const PR_STATE = context.payload.issue.state;
     const ISSUE_NUMBER = context.payload.issue.number;
-    const TODAY = moment().startOf("day");
-    const TOMORROW = moment(TODAY).add(1, "days");
 
-    if (
-      scheduledDate.isSameOrAfter(TODAY) &&
-      scheduledDate.isBefore(TOMORROW)
-    ) {
-      schedule.scheduleJob(scheduledDate.toDate(), async () => {
-        if (PR_STATE === "open") {
-          // Merge the pull request
-          await context.octokit.pulls.merge({
-            owner: context.payload.repository.owner.login,
-            repo: context.payload.repository.name,
-            pull_number: ISSUE_NUMBER,
-          });
+    // Schedule the merge request
+    schedule.scheduleJob(scheduledDate.toDate(), async () => {
+      if (PR_STATE === "open") {
+        // Merge the pull request
+        await context.octokit.pulls.merge({
+          owner: context.payload.repository.owner.login,
+          repo: context.payload.repository.name,
+          pull_number: ISSUE_NUMBER,
+        });
 
-          await context.octokit.issues.createComment(
-            context.issue({
-              body: `Hi @${USERNAME}, your pull request was merged at ${moment().format()}`,
-            })
-          );
-        }
-      });
-    }
+        await context.octokit.issues.createComment(
+          context.issue({
+            body: `Hi @${USERNAME}, your pull request was merged at ${moment().format()}`,
+          })
+        );
+      }
+    });
   } catch (error) {
     console.error(error);
 
