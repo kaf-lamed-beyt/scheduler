@@ -17,7 +17,6 @@ module.exports = (app) => {
       const MERGE_KEYWORD = "merge";
 
       const scheduledDateMatch = COMMENT.match(/ (\d{4}-\d{2}-\d{2})/);
-
       if (
         COMMENT.includes(`@${APP_NAME}`) &&
         COMMENT.includes(MERGE_KEYWORD) &&
@@ -54,8 +53,8 @@ module.exports = (app) => {
       }
       if (
         COMMENT.includes(APP_NAME) &&
-        COMMENT.includes(!MERGE_KEYWORD) &&
-        COMMENT.includes(!scheduledDateMatch)
+        !COMMENT.includes(MERGE_KEYWORD) &&
+        !scheduledDateMatch
       ) {
         await context.octokit.issues.createComment(
           context.issue({
