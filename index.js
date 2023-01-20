@@ -88,7 +88,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
   } = context.payload;
 
   // Check if the pull request is still open
-  const { data: pullRequest } = await context.github.pullRequests.get(
+  const { data: pullRequest } = await context.octokit.pulls.get(
     context.repo({
       pull_number: number,
       owner: login,
@@ -102,7 +102,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
     setTimeout(async () => {
       if (pullRequest.state === "open") {
         // Merge the pull request
-        await context.github.pullRequests.merge(
+        await context.octokit.pulls.merge(
           context.repo({
             pull_number: number,
             owner: login,
@@ -125,7 +125,7 @@ const scheduleMergeRequest = async (context, scheduledDate) => {
 
     cron.schedule(schedule, async () => {
       if (pullRequest.state === "open") {
-        await context.github.pullRequests.merge(
+        await context.octokit.pulls.merge(
           context.repo({
             pull_number: number,
             repo: name,
