@@ -44,6 +44,8 @@ module.exports = (app) => {
             0
           );
 
+          console.log(scheduledDate);
+
           await context.octokit.issues.createComment(
             context.issue({
               body: `Hi @${USERNAME}, your merge request has been scheduled for ${scheduledDate.toString()}`,
@@ -61,7 +63,7 @@ module.exports = (app) => {
       } else {
         await context.octokit.issues.createComment(
           context.issue({
-            body: `@${USERNAME}, you need to pass the "merge" keyword and the date and time you'd want this pull request to be merged in this format: "YYYY-MM-DD hh:mm"`,
+            body: `Hi @${USERNAME}, you need to pass the "merge" keyword and the date and time you'd want this pull request to be merged in this format: "YYYY-MM-DD hh:mm"`,
           })
         );
       }
@@ -92,6 +94,7 @@ const scheduleMergeRequest = (
         repo: context.payload.repository.name,
         pull_number: ISSUE_NUMBER,
       });
+
       await context.octokit.issues.createComment(
         context.issue({
           body: `Hi @${USERNAME}, your pull request was merged at ${moment().format()}`,

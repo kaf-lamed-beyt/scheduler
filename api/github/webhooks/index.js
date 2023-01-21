@@ -5,7 +5,7 @@ const {
 
 const app = require("../../../index");
 
-module.exports = createNodeMiddleware(app, {
+module.exports.handler = createNodeMiddleware(app, {
   probot: createProbot(),
   webhooksPath: "/api/github/webhooks",
 });
