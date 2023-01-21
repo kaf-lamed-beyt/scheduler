@@ -29,7 +29,7 @@ module.exports = (app) => {
           const dateArray = scheduledDateMatch[1].split("-");
           // get the time from the comment body
           const scheduledTime = COMMENT.match(/(\d{2}:\d{2})/);
-          const timeArray = scheduledTim[1].split(":");
+          const timeArray = scheduledTime[1].split(":");
 
           // initialize new date object
           const scheduledDate = new Date(
