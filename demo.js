@@ -21,17 +21,20 @@ module.exports = (app) => {
               body: `Hi @${USERNAME}, your merge request is being processed...`,
             })
           );
+
           const pull_request = await context.github.pulls.get({
             owner: context.payload.repository.owner.login,
             repo: context.payload.repository.name,
             pull_number: ISSUE_NUMBER,
           });
+
           if (pull_request.data.state === "open") {
             const merge = await context.github.pulls.merge({
               owner: context.payload.repository.owner.login,
               repo: context.payload.repository.name,
               pull_number: ISSUE_NUMBER,
             });
+
             if (merge.status === 204) {
               await context.octokit.issues.createComment(
                 context.issue({
