@@ -60,7 +60,13 @@ module.exports = (app) => {
             })
           );
         }
-      } else {
+      }
+
+      if (
+        !COMMENT.includes(MERGE_KEYWORD) &&
+        !scheduledDateMatch &&
+        !scheduledTimeMatch
+      ) {
         await context.octokit.issues.createComment(
           context.issue({
             body: `Hi @${USERNAME}, you need to pass the "merge" keyword and the date and time you'd want this pull request to be merged in this format: "YYYY-MM-DD hh:mm"`,
