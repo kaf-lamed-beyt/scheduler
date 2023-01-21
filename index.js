@@ -84,7 +84,7 @@ const scheduleMergeRequest = (
     const OWNER = context.payload.repository.owner.login;
 
     try {
-      await context.github.pulls.merge({
+      await context.octokit.pulls.merge({
         owner: context.payload.repository.owner.login,
         repo: context.payload.repository.name,
         pull_number: ISSUE_NUMBER,

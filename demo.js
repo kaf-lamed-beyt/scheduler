@@ -12,7 +12,7 @@ module.exports = (app) => {
       const COMMENT = context.payload.comment.body;
       const USERNAME = context.payload.comment.user.login;
       const AUTHOR_ROLE = context.payload.issue.author_association;
-      const ISSUE_NUMBER = context.payload.issue.number;
+      const ISSUE_NUMBER = context.issue.number;
 
       if (COMMENT.includes(`@${APP_NAME}`) && COMMENT.includes(MERGE_KEYWORD)) {
         if (AUTHOR_ROLE === "OWNER" || AUTHOR_ROLE === "COLLABORATOR") {
@@ -22,14 +22,14 @@ module.exports = (app) => {
             })
           );
 
-          const pull_request = await context.github.pulls.get({
+          const pull_request = await context.octokit.pulls.get({
             owner: context.payload.repository.owner.login,
             repo: context.payload.repository.name,
             pull_number: ISSUE_NUMBER,
           });
 
           if (pull_request.data.state === "open") {
-            const merge = await context.github.pulls.merge({
+            const merge = await context.octokit.pulls.merge({
               owner: context.payload.repository.owner.login,
               repo: context.payload.repository.name,
               pull_number: ISSUE_NUMBER,
