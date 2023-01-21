@@ -8,6 +8,8 @@ const moment = require("moment");
 const APP_NAME = "agba-merger";
 const MERGE_KEYWORD = "merge";
 
+let ERROR_MESSAGE_STATE = false;
+
 module.exports = (app) => {
   app.on("issue_comment.created", async (context) => {
     try {
@@ -17,19 +19,20 @@ module.exports = (app) => {
       const ISSUE_NUMBER = context.issue.number;
 
       const scheduledDateMatch = COMMENT.match(/(\d{4}-\d{2}-\d{2})/);
+      const scheduledTimeMatch = COMMENT.match(/(\d{2}:\d{2})/);
 
       if (
         COMMENT.includes(`@${APP_NAME}`) &&
         COMMENT.includes(MERGE_KEYWORD) &&
-        scheduledDateMatch
+        scheduledDateMatch &&
+        scheduledTimeMatch
       ) {
         if (AUTHOR_ROLE === "OWNER" || AUTHOR_ROLE === "COLLABORATOR") {
           // get the scheduled date that is in this format "yyyy-mm-dd" from the comment body
           // format it by removing the `-` char.
           const dateArray = scheduledDateMatch[1].split("-");
           // get the time from the comment body
-          const scheduledTime = COMMENT.match(/(\d{2}:\d{2})/);
-          const timeArray = scheduledTime[1].split(":");
+          const timeArray = scheduledTimeMatch[1].split(":");
 
           // initialize new date object
           const scheduledDate = new Date(
@@ -43,7 +46,7 @@ module.exports = (app) => {
 
           await context.octokit.issues.createComment(
             context.issue({
-              body: `Hi ${USERNAME}, your merge request has been scheduled for ${scheduledDate.toString()}`,
+              body: `Hi @${USERNAME}, your merge request has been scheduled for ${scheduledDate.toString()}`,
             })
           );
 
@@ -51,7 +54,7 @@ module.exports = (app) => {
         } else {
           await context.octokit.issues.createComment(
             context.issue({
-              body: `Hi ${USERNAME}, you do not have permission to merge pull requests in this repository`,
+              body: `Hi @${USERNAME}, you do not have permission to merge pull requests in this repository`,
             })
           );
         }
@@ -67,7 +70,7 @@ module.exports = (app) => {
 
       await context.octokit.issues.createComment(
         context.issue({
-          body: `${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact an admin for assistance.`,
+          body: `@${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact an admin for assistance.`,
         })
       );
     }
@@ -98,7 +101,7 @@ const scheduleMergeRequest = (
       console.error(error);
       await context.octokit.issues.createComment(
         context.issue({
-          body: `${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact ${OWNER} for assistance.`,
+          body: `@${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact ${OWNER} for assistance.`,
         })
       );
     }
