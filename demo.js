@@ -1,63 +1,32 @@
-/**
- * @param {import('probot').Probot} app
- */
+const { Probot } = require("probot");
+const config = require("probot-config");
 
-const moment = require("moment");
-const APP_NAME = "agba-merger";
-const MERGE_KEYWORD = "merge";
+const app = new Probot({
+  id: process.env.APP_ID,
+  secret: process.env.WEBHOOK_SECRET,
+  token: process.env.AM_TOKEN,
+});
 
-let ERROR_MESSAGE_STATE = false;
-
-module.exports = (app) => {
+app.load(async (app) => {
   app.on("issue_comment.created", async (context) => {
-    try {
-      const COMMENT = context.payload.comment.body;
-      const USERNAME = context.payload.comment.user.login;
-      const AUTHOR_ROLE = context.payload.issue.author_association;
-      const ISSUE_NUMBER = context.issue.number;
-
-      if (
-        COMMENT.includes(`@${APP_NAME}`) &&
-        COMMENT.includes(MERGE_KEYWORD)
-      ) {
-        if (AUTHOR_ROLE === "OWNER" || AUTHOR_ROLE === "COLLABORATOR") {
-          await context.octokit.pulls.merge({
-            owner: context.payload.repository.owner.login,
-            repo: context.payload.repository.name,
-            pull_number: ISSUE_NUMBER,
-          });
-
-          await context.octokit.issues.createComment(
-            context.issue({
-              body: `Hi @${USERNAME}, your merge request has been successfully merged`,
-            })
-          );
-        } else {
-          await context.octokit.issues.createComment(
-            context.issue({
-              body: `Hi @${USERNAME}, you do not have permission to merge pull requests in this repository`,
-            })
-          );
-        }
-      }
-
-      if (
-        !COMMENT.includes(MERGE_KEYWORD)
-      ) {
-        await context.octokit.issues.createComment(
+    // check if the comment contains the merge keyword
+    if (context.payload.comment.body.toLowerCase().includes("merge")) {
+      // merge the pull request
+      const { data } = await context.github.pulls.merge(
+        context.issue({
+          owner: context.payload.repository.owner.login,
+          repo: context.payload.repository.name,
+          pull_number: context.payload.pull_request.number,
+        })
+      );
+      if (data.merged) {
+        // if merge is successful, add a comment on the pull request
+        context.github.issues.createComment(
           context.issue({
-            body: `Hi @${USERNAME}, you need to pass the "merge" keyword  to merge the pull request`,
+            body: "Pull request successfully merged!",
           })
         );
       }
-    } catch (error) {
-      console.error(error);
-
-      await context.octokit.issues.createComment(
-        context.issue({
-          body: `@${USERNAME}, something went wrong while I tried merging your pull request. Please try again later or contact an admin for assistance.`,
-        })
-      );
     }
   });
-};
+});
