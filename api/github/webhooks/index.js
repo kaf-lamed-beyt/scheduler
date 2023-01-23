@@ -3,7 +3,7 @@ const {
   createProbot,
 } = require("@probot/adapter-aws-lambda-serverless");
 
-const app = require("../../../index");
+const app = require("../../../demo");
 
 module.exports = createNodeMiddleware(app, {
   probot: createProbot(),
