@@ -24,11 +24,11 @@ jobs:
             privateKey: process.env.PRIVATE_KEY
           })
 
-          async function mergePR(repo, pull_number) {
+          async function mergePR(REPO, pull_number) {
             try {
               await octokit.pulls.merge({
-                owner: repo.owner,
-                repo: repo.repo,
+                owner: REPO.owner,
+                repo: REPO.repo,
                 pull_number: pull_number
               })
             } catch(error) {
@@ -47,7 +47,7 @@ jobs:
           })
 
           for (const PR of pullRequests.data) {
-            const labels = PR.labels.map(label: {name} => name)
+            const labels = PR.labels.map(label => label.name)
 
             if (labels.includes("scheduled for merge")) {
               const schedule = labels.find(label => label.startsWith("schedule:"))
@@ -55,7 +55,7 @@ jobs:
 
               if (scheduledDate === CURRENT_DATE) {
                 SCHEDULED_PULL_REQUESTS.push({
-                  repo: repo,
+                  repo: REPO,
                   pull_number: PR.number
                 })
               }
