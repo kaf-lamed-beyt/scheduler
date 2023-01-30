@@ -49,7 +49,7 @@ jobs:
             const labels = PR.labels.map(label: {name} => name)
 
             if (labels.includes("scheduled for merge")) {
-              const schedule = labels.find(label => lable.startsWith("schedule:"))
+              const schedule = labels.find(label => label.startsWith("schedule:"))
               const scheduledDate = schedule.split(":")[1]
 
               if (scheduledDate === CURRENT_DATE) {

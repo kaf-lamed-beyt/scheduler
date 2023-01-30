@@ -69,8 +69,6 @@ module.exports = (app) => {
               ],
             })
           );
-
-          scheduleMergeRequest(context, scheduledDate, ISSUE_NUMBER, USERNAME);
         } else {
           await context.octokit.issues.createComment(
             context.issue({
