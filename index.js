@@ -52,6 +52,13 @@ module.exports = (app) => {
             })
           );
 
+          await context.octokit.issues.createLabel(
+            context.repo({
+              name: "scheduled for merge",
+              color: "#F97432",
+            })
+          );
+
           await context.octokit.issues.addLabels(
             context.issue({
               labels: ["scheduled for merge"],
