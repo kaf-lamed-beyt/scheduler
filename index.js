@@ -44,8 +44,6 @@ module.exports = (app) => {
             0
           );
 
-          console.log(scheduledDate);
-
           await context.octokit.issues.createComment(
             context.issue({
               body: `Hi @${USERNAME}, your merge request has been scheduled for ${scheduledDate.toString()}`,
@@ -59,9 +57,19 @@ module.exports = (app) => {
             })
           );
 
+          await context.octokit.issues.createLabel(
+            context.repo({
+              name: `schedule: ${scheduledDateMatch[0]}`,
+              color: "#238636",
+            })
+          );
+
           await context.octokit.issues.addLabels(
             context.issue({
-              labels: ["scheduled for merge"],
+              labels: [
+                "scheduled for merge",
+                `schedule: ${scheduledDateMatch[0]}`,
+              ],
             })
           );
 

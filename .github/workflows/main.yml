@@ -1,0 +1,66 @@
+name: merge scheduled pull requests
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # once per day at midnight(UTC)
+
+env:
+  APP_ID: ${{ secrets.APP_ID }}
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+
+jobs:
+  merge_job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Find scheduled Pull requests
+        run: |
+          const { Octokit } = require("@octokit")
+          const octokit = new Octokit({
+            auth: `app/${process.env.APP_ID}`,
+            privateKey: process.env.PRIVATE_KEY
+          })
+
+          aysnc function mergePR(repo, pull_number) {
+            try {
+              await octokit.pulls.merge({
+                owner: repo.owner,
+                repo: repo.repo,
+                pull_number: pull_number
+              })
+            } catch(error) {
+              console.error(error)
+            }
+          }
+
+          const SCHEDULED_PULL_REQUESTS = []
+          const DATE = new Date()
+          const CURRENT_DATE = DATE.toISOString().split("T")[0],
+
+          const pullRequests = await octokit.pulls.list({
+            owner: repo.owner,
+            repo: repo.repo
+          })
+
+          for (const PR of pullRequests.data) {
+            const labels = PR.labels.map(label: {name} => name)
+
+            if (labels.includes("scheduled for merge")) {
+              const schedule = labels.find(label => lable.startsWith("schedule:"))
+              const scheduledDate = schedule.split(":")[1]
+
+              if (scheduledDate === CURRENT_DATE) {
+                SCHEDULED_PULL_REQUESTS.push({
+                  repo: repo,
+                  pull_number: PR.number
+                })
+              }
+            }
+          }
+
+          for (const PR of SCHEDULED_PULL_REQUESTS) {
+            await mergePR(PR.repo, PR.pull_number)
+          }
