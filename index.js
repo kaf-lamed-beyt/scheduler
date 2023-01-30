@@ -3,12 +3,9 @@
  * @param {import('probot').Probot} app
  */
 
-const schedule = require("node-schedule");
 const moment = require("moment");
 const APP_NAME = "agba-merger";
 const MERGE_KEYWORD = "merge";
-
-let ERROR_MESSAGE_STATE = false;
 
 module.exports = (app) => {
   app.on("issue_comment.created", async (context) => {
@@ -50,19 +47,19 @@ module.exports = (app) => {
             })
           );
 
-          await context.octokit.issues.createLabel(
-            context.repo({
-              name: "scheduled for merge",
-              color: "#F97432",
-            })
-          );
+          // await context.octokit.issues.createLabel(
+          //   context.repo({
+          //     name: "scheduled for merge",
+          //     color: "#F97432",
+          //   })
+          // );
 
-          await context.octokit.issues.createLabel(
-            context.repo({
-              name: `schedule: ${scheduledDateMatch[0]}`,
-              color: "#238636",
-            })
-          );
+          // await context.octokit.issues.createLabel(
+          //   context.repo({
+          //     name: `schedule: ${scheduledDateMatch[0]}`,
+          //     color: "#238636",
+          //   })
+          // );
 
           await context.octokit.issues.addLabels(
             context.issue({
@@ -100,38 +97,6 @@ module.exports = (app) => {
       await context.octokit.issues.createComment(
         context.issue({
           body: `@${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact an admin for assistance.`,
-        })
-      );
-    }
-  });
-};
-
-const scheduleMergeRequest = (
-  context,
-  scheduledDate,
-  ISSUE_NUMBER,
-  USERNAME
-) => {
-  schedule.scheduleJob(scheduledDate, async () => {
-    const OWNER = context.payload.repository.owner.login;
-
-    try {
-      await context.octokit.pulls.merge({
-        owner: context.payload.repository.owner.login,
-        repo: context.payload.repository.name,
-        pull_number: ISSUE_NUMBER,
-      });
-
-      await context.octokit.issues.createComment(
-        context.issue({
-          body: `Hi @${USERNAME}, your pull request was merged at ${moment().format()}`,
-        })
-      );
-    } catch (error) {
-      console.error(error);
-      await context.octokit.issues.createComment(
-        context.issue({
-          body: `@${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact ${OWNER} for assistance.`,
         })
       );
     }
