@@ -18,7 +18,7 @@ jobs:
 
       - name: Find scheduled Pull requests
         run: |
-          const { Octokit } = require("@octokit/rest")
+          import { Octokit } from "@octokit/rest"
           const octokit = new Octokit({
             auth: `app/${process.env.APP_ID}`,
             privateKey: process.env.PRIVATE_KEY
@@ -38,11 +38,12 @@ jobs:
 
           const SCHEDULED_PULL_REQUESTS = []
           const DATE = new Date()
-          const CURRENT_DATE = DATE.toISOString().split("T")[0],
+          const CURRENT_DATE = DATE.toISOString().split("T")[0];
+          const REPO = context.repo()
 
           const pullRequests = await octokit.pulls.list({
-            owner: repo.owner,
-            repo: repo.repo
+            owner: REPO.owner,
+            repo: REPO.repo
           })
 
           for (const PR of pullRequests.data) {
@@ -62,5 +63,8 @@ jobs:
           }
 
           for (const PR of SCHEDULED_PULL_REQUESTS) {
-            await mergePR(PR.repo, PR.pull_number)
+            await mergePR({
+              owner: REPO.owner, 
+              repo: REPO.repo
+            }, PR.pull_number)
           }
