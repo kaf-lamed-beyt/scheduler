@@ -18,13 +18,13 @@ jobs:
 
       - name: Find scheduled Pull requests
         run: |
-          const { Octokit } = require("@octokit")
+          const { Octokit } = require("@octokit/rest")
           const octokit = new Octokit({
             auth: `app/${process.env.APP_ID}`,
             privateKey: process.env.PRIVATE_KEY
           })
 
-          aysnc function mergePR(repo, pull_number) {
+          async function mergePR(repo, pull_number) {
             try {
               await octokit.pulls.merge({
                 owner: repo.owner,
