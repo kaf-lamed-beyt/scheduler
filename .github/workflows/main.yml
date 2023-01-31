@@ -28,8 +28,8 @@ jobs:
       - name: Find scheduled Pull requests
         run: |
           node -e "
-          const { Octokit } = require("@octokit/rest");
-          const { createAppAuth } = require("@octokit/auth-app");
+          const { Octokit } = require('@octokit/rest');
+          const { createAppAuth } = require('@octokit/auth-app');
 
           const appOctokit = new Octokit({
             authStrategy: createAppAuth,
