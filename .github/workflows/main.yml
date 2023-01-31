@@ -2,7 +2,7 @@ name: merge scheduled pull requests
 
 on:
   schedule:
-    - cron: "*/5 * * * *" # 5 minutes interval
+    - cron: "*/5 * * * *"
 
 env:
   APP_ID: ${{ secrets.APP_ID }}
@@ -27,8 +27,7 @@ jobs:
 
       - name: Find scheduled Pull requests
         run: |
-          #!/usr/bin/env node
-
+          node -e '
           const { Octokit } = require("@octokit/rest");
 
           const octokit = new Octokit({
@@ -62,8 +61,6 @@ jobs:
 
             for (const PR of pullRequests.data) {
               const labels = PR.labels.map((label) => label.name);
-
-              console.log(labels);
 
               if (labels.includes("scheduled for merge")) {
                 const schedule = labels.find((label) => label.startsWith("schedule:"));
