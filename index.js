@@ -33,7 +33,7 @@ module.exports = (app) => {
           // initialize new date object
           const scheduledDate = new Date(
             dateArray[0],
-            dateArray[1],
+            dateArray[1] - 1,
             dateArray[2],
             timeArray[0],
             timeArray[1],
