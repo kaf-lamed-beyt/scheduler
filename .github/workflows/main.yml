@@ -29,54 +29,67 @@ jobs:
         run: |
           #!/usr/bin/env node
 
-          const Octokit = require("@octokit/rest")
+          const { Octokit } = require("@octokit/rest");
 
           const octokit = new Octokit({
             auth: `app/${process.env.APP_ID}`,
-            privateKey: process.env.PRIVATE_KEY
-          })
+            privateKey: process.env.PRIVATE_KEY,
+          });
 
           async function mergePR(REPO, pull_number) {
             try {
               await octokit.pulls.merge({
                 owner: REPO.owner,
                 repo: REPO.repo,
-                pull_number: pull_number
-              })
-            } catch(error) {
-              console.error(error)
+                pull_number: pull_number,
+              });
+            } catch (error) {
+              console.error(error);
             }
           }
 
-          const SCHEDULED_PULL_REQUESTS = []
-          const DATE = new Date()
+          const SCHEDULED_PULL_REQUESTS = [];
+          const DATE = new Date();
           const CURRENT_DATE = DATE.toISOString().split("T")[0];
-          const REPO = context.repo()
 
-          const pullRequests = await octokit.pulls.list({
-            owner: REPO.owner,
-            repo: REPO.repo
-          })
+          async function main(context) {
+            const REPO = context.repo();
 
-          for (const PR of pullRequests.data) {
-            const labels = PR.labels.map(label => label.name)
+            const pullRequests = await octokit.pulls.list({
+              owner: REPO.owner,
+              repo: REPO.repo,
+            });
 
-            if (labels.includes("scheduled for merge")) {
-              const schedule = labels.find(label => label.startsWith("schedule:"))
-              const scheduledDate = schedule.split(":")[1]
+            for (const PR of pullRequests.data) {
+              const labels = PR.labels.map((label) => label.name);
 
-              if (scheduledDate === CURRENT_DATE) {
-                SCHEDULED_PULL_REQUESTS.push({
-                  repo: REPO,
-                  pull_number: PR.number
-                })
+              console.log(labels);
+
+              if (labels.includes("scheduled for merge")) {
+                const schedule = labels.find((label) => label.startsWith("schedule:"));
+                const scheduledDate = schedule.split(":")[1];
+
+                if (scheduledDate === CURRENT_DATE) {
+                  SCHEDULED_PULL_REQUESTS.push({
+                    repo: REPO,
+                    pull_number: PR.number,
+                  });
+                }
               }
             }
-          }
 
-          for (const PR of SCHEDULED_PULL_REQUESTS) {
-            await mergePR({
-              owner: REPO.owner, 
-              repo: REPO.repo
-            }, PR.pull_number)
+            for (const PR of SCHEDULED_PULL_REQUESTS) {
+              try {
+                await mergePR(
+                  {
+                    owner: REPO.owner,
+                    repo: REPO.repo,
+                  },
+                  PR.pull_number
+                );
+                console.log(`Successfully merged PR #${PR.pull_number}`);
+              } catch (error) {
+                console.error(`Failed to merge PR #${PR.pull_number}: ${error}`);
+              }
+            }
           }
