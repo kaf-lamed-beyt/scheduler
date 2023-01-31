@@ -16,6 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
       - name: Find scheduled Pull requests
         run: |
           #!/usr/local/bin/node
