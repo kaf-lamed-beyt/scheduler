@@ -83,7 +83,7 @@ module.exports = (app) => {
 
       await context.octokit.issues.createComment(
         context.issue({
-          body: `@${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact an admin for assistance.`,
+          body: `Hi @${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact an admin for assistance.`,
         })
       );
     }
