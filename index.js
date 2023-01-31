@@ -3,7 +3,6 @@
  * @param {import('probot').Probot} app
  */
 
-const moment = require("moment");
 const APP_NAME = "agba-merger";
 const MERGE_KEYWORD = "merge";
 
@@ -13,7 +12,7 @@ module.exports = (app) => {
       const COMMENT = context.payload.comment.body;
       const USERNAME = context.payload.comment.user.login;
       const AUTHOR_ROLE = context.payload.issue.author_association;
-      const ISSUE_NUMBER = context.issue.number;
+      // const ISSUE_NUMBER = context.issue.number;
 
       const scheduledDateMatch = COMMENT.match(/(\d{4}-\d{2}-\d{2})/);
       const scheduledTimeMatch = COMMENT.match(/(\d{2}:\d{2})/);
