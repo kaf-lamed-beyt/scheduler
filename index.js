@@ -41,18 +41,21 @@ module.exports = (app) => {
             0
           );
 
-          await context.octokit.issues.createComment(
+          await context.octokit.issues.addLabels(
             context.issue({
-              body: `Hi @${USERNAME}, your merge request has been scheduled for ${scheduledDate.toString()}`,
+              labels: ["scheduled for merge"],
             })
           );
 
           await context.octokit.issues.addLabels(
             context.issue({
-              labels: [
-                "scheduled for merge",
-                `schedule: ${scheduledDateMatch[0]}`,
-              ],
+              labels: [`schedule:${scheduledDate}`],
+            })
+          );
+
+          await context.octokit.issues.createComment(
+            context.issue({
+              body: `Hi @${USERNAME}, your merge request has been scheduled for ${scheduledDate.toString()}`,
             })
           );
         } else {
