@@ -42,13 +42,7 @@ module.exports = (app) => {
 
           await context.octokit.issues.addLabels(
             context.issue({
-              labels: ["scheduled for merge"],
-            })
-          );
-
-          await context.octokit.issues.addLabels(
-            context.issue({
-              labels: [`schedule:${scheduledDate}`],
+              labels: ["scheduled for merge", `schedule:${scheduledDate}`],
             })
           );
 
