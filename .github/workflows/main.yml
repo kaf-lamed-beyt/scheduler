@@ -2,7 +2,7 @@ name: merge scheduled pull requests
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "0 * * * *"
 
 env:
   APP_ID: ${{ secrets.APP_ID }}
