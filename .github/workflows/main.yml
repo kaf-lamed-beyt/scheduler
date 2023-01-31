@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 name: merge scheduled pull requests
 
 on:
@@ -14,11 +16,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Find scheduled Pull requests
         run: |
           const Octokit = require("@octokit/rest")
+
           const octokit = new Octokit({
             auth: `app/${process.env.APP_ID}`,
             privateKey: process.env.PRIVATE_KEY
