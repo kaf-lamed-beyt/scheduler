@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 name: merge scheduled pull requests
 
 on:
@@ -20,6 +18,8 @@ jobs:
 
       - name: Find scheduled Pull requests
         run: |
+          #!/usr/local/bin/node
+
           const Octokit = require("@octokit/rest")
 
           const octokit = new Octokit({
