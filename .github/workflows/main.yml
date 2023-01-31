@@ -21,6 +21,10 @@ jobs:
         with:
           node-version: 16
 
+      - name: Install dependencies
+        run: |
+          npm install
+
       - name: Find scheduled Pull requests
         run: |
           #!/usr/bin/env node
