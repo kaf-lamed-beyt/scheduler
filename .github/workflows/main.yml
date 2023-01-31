@@ -2,7 +2,7 @@ name: merge scheduled pull requests
 
 on:
   schedule:
-    - cron: "0 0 * * *" # once per day at midnight(UTC)
+    - cron: "*/5 * * * *" # 5 minutes interval
 
 env:
   APP_ID: ${{ secrets.APP_ID }}
@@ -18,7 +18,7 @@ jobs:
 
       - name: Find scheduled Pull requests
         run: |
-          import { Octokit } from "@octokit/rest"
+          const Octokit = require("@octokit/rest")
           const octokit = new Octokit({
             auth: `app/${process.env.APP_ID}`,
             privateKey: process.env.PRIVATE_KEY
