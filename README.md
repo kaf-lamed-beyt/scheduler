@@ -1,3 +1,5 @@
+[![merge scheduled PR](https://github.com/kaf-lamed-beyt/scheduler/actions/workflows/main.yml/badge.svg)](https://github.com/kaf-lamed-beyt/scheduler/actions/workflows/main.yml)
+
 # agba-merger
 
 > A GitHub bot that helps you publish any feature in your project or article in your developer blog, on a scheduled date/day
@@ -16,9 +18,10 @@ When you have a pull request that you want to schedule with the help of the bot,
 
 You can choose to construct this sentence in any manner that seems appropriate to you. The keywords you shouldn't leave out are the name of the bot **@agba-merger**, the **merge**, and your date in **"YYYY-MM-DD** format.
 
-> ### :warning: the bot isn't completely stable yet. So when you schedule a merge request and you find out that the pull request was not merged, that's on me kindly give me time to provide a fix. 
+> ### :warning: the bot isn't completely stable yet. So when you schedule a merge request and you find out that the pull request was not merged, that's on me kindly give me time to provide a fix.
 
 Nevertheless, if you think you have straightforward approach to fix this, please feel free to submit a PR.
+
 ## Setup
 
 ```sh
