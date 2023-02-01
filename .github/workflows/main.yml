@@ -57,6 +57,9 @@ jobs:
 
           async function main(context) {
             const REPO = context.repo();
+             console.log(`APP_ID: ${process.env.APP_ID}`);
+             console.log(`PRIVATE_KEY: ${process.env.PRIVATE_KEY}`);
+             console.log(`REPO: ${REPO}`);
 
             const pullRequests = await appOctokit.pulls.list({
               owner: REPO.owner,
