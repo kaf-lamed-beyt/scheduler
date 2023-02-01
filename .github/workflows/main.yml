@@ -28,8 +28,8 @@ jobs:
       - name: Find scheduled Pull requests
         run: |
           node -e "
-          const { Octokit } = require('@octokit/rest');
-          const { createAppAuth } = require('@octokit/auth-app');
+          const { Octokit } = require("@octokit/rest");
+          const { createAppAuth } = require("@octokit/auth-app");
 
           const appOctokit = new Octokit({
             authStrategy: createAppAuth,
@@ -41,7 +41,7 @@ jobs:
 
           async function mergePR(REPO, pull_number) {
             try {
-              await octokit.pulls.merge({
+              await appOctokit.pulls.merge({
                 owner: REPO.owner,
                 repo: REPO.repo,
                 pull_number: pull_number,
@@ -53,12 +53,12 @@ jobs:
 
           const SCHEDULED_PULL_REQUESTS = [];
           const DATE = new Date();
-          const CURRENT_DATE = DATE.toISOString().split('T')[0];
+          const CURRENT_DATE = DATE.toISOString().split("T")[0];
 
           async function main(context) {
             const REPO = context.repo();
 
-            const pullRequests = await octokit.pulls.list({
+            const pullRequests = await appOctokit.pulls.list({
               owner: REPO.owner,
               repo: REPO.repo,
             });
@@ -66,9 +66,9 @@ jobs:
             for (const PR of pullRequests.data) {
               const labels = PR.labels.map((label) => label.name);
 
-              if (labels.includes('scheduled for merge')) {
-                const schedule = labels.find((label) => label.startsWith('schedule:'));
-                const scheduledDate = schedule.split(':')[1];
+              if (labels.includes("scheduled for merge")) {
+                const schedule = labels.find((label) => label.startsWith("schedule:"));
+                const scheduledDate = schedule.split(":")[1];
 
                 if (scheduledDate === CURRENT_DATE) {
                   SCHEDULED_PULL_REQUESTS.push({
