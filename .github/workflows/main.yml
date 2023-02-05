@@ -2,7 +2,7 @@ name: merge scheduled pull requests
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/5 * * * *"
 
 env:
   APP_ID: ${{ secrets.APP_ID }}
@@ -98,6 +98,6 @@ jobs:
       - name: Auto-merge Pull Requests
         uses: pascalgn/automerge-action@v0.8.1
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.AM_TOKEN }}
           MERGE_LABELs: "scheduled for merge"
           MERGE_REMOVE_LABELS: ""
