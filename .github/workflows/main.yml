@@ -7,7 +7,6 @@ on:
 env:
   APP_ID: ${{ secrets.APP_ID }}
   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-  AM_TOKEN: ${{ secrets.AM_TOKEN }}
 
 jobs:
   merge_job:
@@ -35,8 +34,8 @@ jobs:
           const appOctokit = new Octokit({
             authStrategy: createAppAuth,
             auth: {
-              appId: process.env.APP_ID,
-              privateKey: process.env.PRIVATE_KEY,
+              appId: APP_ID,
+              privateKey: PRIVATE_KEY,
             },
           });
 
@@ -99,6 +98,6 @@ jobs:
       - name: Merge pull requests (automerge-action)
         uses: pascalgn/automerge-action@v0.15.5
         with:
-          GITHUB_TOKEN: ${{ env.AM_TOKEN }}
+          GITHUB_TOKEN: "${{ secrets.AM_TOKEN }}"
           MERGE_LABELS: "scheduled for merge"
           MERGE_REMOVE_LABELS: ""
