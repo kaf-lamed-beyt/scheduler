@@ -27,7 +27,7 @@ jobs:
 
       - name: Find scheduled Pull requests
         run: |
-          node -e 
+          node -e " 
           const { Octokit } = require('@octokit/rest');
           const { createAppAuth } = require('@octokit/auth-app');
 
@@ -94,7 +94,7 @@ jobs:
               }
             }
           }
-
+          "
       - name: Merge pull requests (automerge-action)
         uses: pascalgn/automerge-action@v0.15.5
         with:
