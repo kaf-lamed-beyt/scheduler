@@ -95,3 +95,9 @@ jobs:
             }
           }
           "
+      - name: Auto-merge Pull Requests
+        uses: pascalgn/automerge-action@v0.8.1
+        with:
+          repo-token: ${{ secrets.AM_TOKEN }}
+          merge-label: "scheduled for merge"
+          schedule-label-prefix: "schedule:"
