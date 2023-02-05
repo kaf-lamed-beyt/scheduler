@@ -2,7 +2,7 @@ name: merge scheduled pull requests
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/2 * * * *"
 
 env:
   APP_ID: ${{ secrets.APP_ID }}
@@ -28,7 +28,7 @@ jobs:
 
       - name: Find scheduled Pull requests
         run: |
-          node -e "
+          node -e 
           const { Octokit } = require('@octokit/rest');
           const { createAppAuth } = require('@octokit/auth-app');
 
@@ -95,10 +95,10 @@ jobs:
               }
             }
           }
-          "
+
       - name: Merge pull requests (automerge-action)
         uses: pascalgn/automerge-action@v0.15.5
         with:
-          GITHUB_TOKEN: ${{ process.env.AM_TOKEN }}
+          GITHUB_TOKEN: ${{ env.AM_TOKEN }}
           MERGE_LABELS: "scheduled for merge"
           MERGE_REMOVE_LABELS: ""
