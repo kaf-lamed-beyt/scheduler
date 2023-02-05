@@ -7,6 +7,7 @@ on:
 env:
   APP_ID: ${{ secrets.APP_ID }}
   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+  AM_TOKEN: ${{ secrets.AM_TOKEN }}
 
 jobs:
   merge_job:
@@ -98,6 +99,6 @@ jobs:
       - name: Merge pull requests (automerge-action)
         uses: pascalgn/automerge-action@v0.15.5
         with:
-          GITHUB_TOKEN: ${{ secrets.AM_TOKEN }}
+          GITHUB_TOKEN: ${{ process.env.AM_TOKEN }}
           MERGE_LABELS: "scheduled for merge"
           MERGE_REMOVE_LABELS: ""
