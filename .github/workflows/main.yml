@@ -34,8 +34,8 @@ jobs:
           const appOctokit = new Octokit({
             authStrategy: createAppAuth,
             auth: {
-              appId: APP_ID,
-              privateKey: PRIVATE_KEY,
+              appId: process.env.APP_ID,
+              privateKey: process.env.PRIVATE_KEY,
             },
           });
 
