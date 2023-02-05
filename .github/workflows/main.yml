@@ -95,8 +95,8 @@ jobs:
             }
           }
           "
-      - name: Auto-merge Pull Requests
-        uses: pascalgn/automerge-action@v0.15.5"
+      - name: Merge pull requests (automerge-action)
+        uses: pascalgn/automerge-action@v0.15.5
         with:
           GITHUB_TOKEN: ${{ secrets.AM_TOKEN }}
           MERGE_LABELS: "scheduled for merge"
