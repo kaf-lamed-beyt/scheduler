@@ -11,12 +11,10 @@ module.exports = (app) => {
   const mergePullRequests = async (context) => {
     const owner = context.payload.repository.owner.login;
     const repo = context.payload.repository.name;
-    const installationId = context.payload.installation.id;
 
     const issues = await context.octokit.issues.listForRepo({
       owner,
       repo,
-      installationId,
       labels: "scheduled for merge",
     });
 
