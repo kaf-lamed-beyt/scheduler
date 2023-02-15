@@ -13,6 +13,16 @@ module.exports = (app) => {
       const COMMENT = context.payload.comment.body;
       const USERNAME = context.payload.comment.user.login;
       const AUTHOR_ROLE = context.payload.issue.author_association;
+      const ISSUE_NUMBER = context.payload.issue.ISSUE_NUMBER;
+      const OWNER = context.payload.repository.owner.login;
+      const REPO = context.payload.repository.name;
+      const issue = await context.octokit.issues.get({
+        owner: OWNER,
+        repo: REPO,
+        issue_number: ISSUE_NUMBER,
+      });
+
+      const labels = issue.data.labels.map((label) => label.name);
 
       const scheduledDateMatch = COMMENT.match(/(\d{4}-\d{2}-\d{2})/);
       const scheduledTimeMatch = COMMENT.match(/(\d{2}:\d{2})/);
@@ -66,7 +76,9 @@ module.exports = (app) => {
       if (
         !COMMENT.includes(MERGE_KEYWORD) &&
         !scheduledDateMatch &&
-        !scheduledTimeMatch
+        !scheduledTimeMatch &&
+        (!label.includes("scheduled for merge") ||
+          !labels.includes(/schedule: \d{4}-\d{2}-\d{2}/))
       ) {
         await context.octokit.issues.createComment(
           context.issue({
