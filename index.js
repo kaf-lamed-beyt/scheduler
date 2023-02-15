@@ -67,10 +67,12 @@ module.exports = (app) => {
         }
       }
     }
+
+    setTimeout(() => mergePullRequests(context), 60 * 1000);
   };
 
-  app.on("issue_comment.created", "installation.created", async (context) => {
-    setInterval(await mergePullRequests(context), 60 * 1000);
+  app.on("issue_comment.created", async (context) => {
+    await mergePullRequests(context);
 
     try {
       const COMMENT = context.payload.comment.body;
