@@ -133,5 +133,5 @@ default_permissions:
 # description: A description of my awesome app
 
 # Set to true when your GitHub App is available to the public or false when it is only accessible to the owner of the app.
-# Default: true
-# public: false
+Default: true
+public: true
