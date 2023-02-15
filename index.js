@@ -11,10 +11,12 @@ module.exports = (app) => {
   const mergePullRequests = async (context) => {
     const owner = context.payload.repository.owner.login;
     const repo = context.payload.repository.name;
+    const installationId = context.payload.installation.id;
 
     const issues = await context.octokit.issues.listForRepo({
       owner,
       repo,
+      installationId,
       labels: "scheduled for merge",
     });
 
@@ -67,7 +69,7 @@ module.exports = (app) => {
     }
   };
 
-  app.on("issue_comment.created", async (context) => {
+  app.on("issue_comment.created", "installation.created", async (context) => {
     setInterval(await mergePullRequests(context), 60 * 1000);
 
     try {
@@ -77,6 +79,7 @@ module.exports = (app) => {
       const ISSUE_NUMBER = context.payload.issue.ISSUE_NUMBER;
       const OWNER = context.payload.repository.owner.login;
       const REPO = context.payload.repository.name;
+
       const issue = await context.octokit.issues.get({
         owner: OWNER,
         repo: REPO,
