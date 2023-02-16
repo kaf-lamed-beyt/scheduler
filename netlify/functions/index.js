@@ -1,9 +1,9 @@
 const {
-  createLambdaFunction,
+  createLamdaFunction,
   createProbot,
 } = require("@probot/adapter-aws-lambda-serverless");
-const appFn = require("../../index");
+const app = require("../../index");
 
-module.exports.handler = createLambdaFunction(appFn, {
+module.exports.handler = createLamdaFunction(app, {
   probot: createProbot(),
 });
