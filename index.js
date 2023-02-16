@@ -71,10 +71,10 @@ module.exports = (app) => {
 
   app.on("issue_comment.created", async (context) => {
     // await mergePullRequests(context);
+    // so that USERNAME is always defined within the scopt of the webhook event, even if an error occurs before it is assigned a value.
+    const USERNAME = context.payload.comment.user.login;
 
     try {
-      let USERNAME = ""; // so that USERNAME is always defined within the scopt of the webhook event, even if an error occurs before it is assigned a value.
-      USERNAME = context.payload.comment.user.login;
       const COMMENT = context.payload.comment.body;
       const AUTHOR_ROLE = context.payload.issue.author_association;
       const ISSUE_NUMBER = context.payload.issue.ISSUE_NUMBER;
