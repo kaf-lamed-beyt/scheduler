@@ -70,7 +70,7 @@ module.exports = (app) => {
   };
 
   app.on("issue_comment.created", async (context) => {
-    await mergePullRequests(context);
+    // await mergePullRequests(context);
 
     try {
       const COMMENT = context.payload.comment.body;
