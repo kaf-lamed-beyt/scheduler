@@ -73,8 +73,9 @@ module.exports = (app) => {
     // await mergePullRequests(context);
 
     try {
+      let USERNAME = ""; // so that USERNAME is always defined within the scopt of the webhook event, even if an error occurs before it is assigned a value.
+      USERNAME = context.payload.comment.user.login;
       const COMMENT = context.payload.comment.body;
-      const USERNAME = context.payload.comment.user.login;
       const AUTHOR_ROLE = context.payload.issue.author_association;
       const ISSUE_NUMBER = context.payload.issue.ISSUE_NUMBER;
       const OWNER = context.payload.repository.owner.login;
