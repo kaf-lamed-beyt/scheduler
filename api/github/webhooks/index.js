@@ -1,7 +1,4 @@
-const {
-  createNodeMiddleware,
-  createProbot,
-} = require("@probot/adapter-aws-lambda-serverless");
+const { createNodeMiddleware, createProbot } = require("probot");
 
 const app = require("../../../index");
 
