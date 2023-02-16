@@ -73,25 +73,23 @@ module.exports = (app) => {
     // await mergePullRequests(context);
     // so that USERNAME is always defined within the scopt of the webhook event, even if an error occurs before it is assigned a value.
     const USERNAME = context.payload.comment.user.login;
+    const COMMENT = context.payload.comment.body;
+    const AUTHOR_ROLE = context.payload.issue.author_association;
+    const ISSUE_NUMBER = context.payload.issue.number;
+    const OWNER = context.payload.repository.owner.login;
+    const REPO = context.payload.repository.name;
+
+    const issue = await context.octokit.issues.get({
+      owner: OWNER,
+      repo: REPO,
+      issue_number: ISSUE_NUMBER,
+    });
+
+    const labels = context.payload.issue.labels.map((label) => label.name);
+    const scheduledDateMatch = COMMENT.match(/(\d{4}-\d{2}-\d{2})/);
+    const scheduledTimeMatch = COMMENT.match(/(\d{2}:\d{2})/);
 
     try {
-      const COMMENT = context.payload.comment.body;
-      const AUTHOR_ROLE = context.payload.issue.author_association;
-      const ISSUE_NUMBER = context.payload.issue.ISSUE_NUMBER;
-      const OWNER = context.payload.repository.owner.login;
-      const REPO = context.payload.repository.name;
-
-      const issue = await context.octokit.issues.get({
-        owner: OWNER,
-        repo: REPO,
-        issue_number: ISSUE_NUMBER,
-      });
-
-      const labels = issue.data.labels.map((label) => label.name);
-
-      const scheduledDateMatch = COMMENT.match(/(\d{4}-\d{2}-\d{2})/);
-      const scheduledTimeMatch = COMMENT.match(/(\d{2}:\d{2})/);
-
       if (
         COMMENT.includes(`@${APP_NAME}`) &&
         COMMENT.includes(MERGE_KEYWORD) &&
