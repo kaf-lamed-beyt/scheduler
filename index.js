@@ -79,7 +79,7 @@ module.exports = (app) => {
         !COMMENT.includes(MERGE_KEYWORD) &&
         !scheduledDateMatch &&
         !scheduledTimeMatch &&
-        (!label.includes("scheduled for merge") ||
+        (!labels.includes("scheduled for merge") ||
           !labels.includes(/schedule: \d{4}-\d{2}-\d{2}/))
       ) {
         await context.octokit.issues.createComment(
@@ -99,3 +99,64 @@ module.exports = (app) => {
     }
   });
 };
+
+// const mergePullRequests = async (context) => {
+//   const owner = context.payload.repository.owner.login;
+//   const repo = context.payload.repository.name;
+
+//   const issues = await context.octokit.issues.listForRepo({
+//     owner,
+//     repo,
+//     labels: "scheduled for merge",
+//   });
+
+//   const now = moment();
+
+//   for (const issue of issues.data) {
+//     const scheduledDateString = issue.labels
+//       .find((label) => label.name.startsWith("schedule: "))
+//       ?.name.slice(10);
+
+//     if (!scheduledDateString) continue;
+
+//     const scheduledDate = moment(scheduledDateString);
+
+//     if (now.isAfter(scheduledDate)) {
+//       try {
+//         const pullRequest = await context.octokit.pulls.get({
+//           owner,
+//           repo,
+//           pull_number: issue.number,
+//         });
+
+//         if (pullRequest.data.state === "open") {
+//           const mergeResult = await context.octokit.pulls.merge({
+//             owner,
+//             repo,
+//             pull_number: issue.number,
+//           });
+
+//           await context.octokit.issues.createComment(
+//             context.issue({
+//               body: `Merged pull request #${issue.number}`,
+//             })
+//           );
+//         } else {
+//           await context.octokit.issues.createComment(
+//             context.issue({
+//               body: `Pull request #${issue.number} is already closed or merged.`,
+//             })
+//           );
+//         }
+//       } catch (error) {
+//         await context.octokit.issues.createComment(
+//           context.issue({
+//             body: `Error merging pull request #${issue.number}: ${error}`,
+//           })
+//         );
+//       }
+//     }
+//   }
+
+//   setTimeout(() => mergePullRequests(context), 60 * 1000);
+// };
