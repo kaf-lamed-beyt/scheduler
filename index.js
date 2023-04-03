@@ -1,113 +1,162 @@
 /**
+ * This is the main entrypoint to my Probot app
  * @param {import('probot').Probot} app
  */
+
+const moment = require("moment");
+const APP_NAME = "agba-merger";
+const MERGE_KEYWORD = "merge";
+
 module.exports = (app) => {
-  app.log("Yay! The app was loaded!");
+  const mergePullRequests = async (context) => {
+    const owner = context.payload.repository.owner.login;
+    const repo = context.payload.repository.name;
 
-  async function findOrCreateStargazersIssue(context) {
-    const OWNER = context.payload.repository.owner.login;
-    const REPO = context.payload.repository.name;
-    const LABEL = "stargazers";
-
-    const { data: issues } = await context.octokit.issues.listForRepo({
-      repo: REPO,
-      owner: OWNER,
-      state: "open",
+    const issues = await context.octokit.issues.listForRepo({
+      owner,
+      repo,
+      labels: "scheduled for merge",
     });
 
-    const stargazersIssue = issues.find((issue) =>
-      issue.labels.some((label) => label.name === LABEL)
-    );
+    const now = moment();
 
-    if (stargazersIssue) {
-      return stargazersIssue.number;
-    } else {
-      const { data: issue } = await context.octokit.issues.create({
-        repo: REPO,
-        owner: OWNER,
-        body: "This issue tracks the stargazers and the runaway stargazers of this repo",
-        labels: [LABEL],
-        title: "Issue to track stargazers",
-      });
-      return issue.number;
+    for (const issue of issues.data) {
+      const scheduledDateString = issue.labels
+        .find((label) => label.name.startsWith("schedule: "))
+        ?.name.slice(10);
+
+      if (!scheduledDateString) continue;
+
+      const scheduledDate = moment(scheduledDateString);
+
+      if (now.isAfter(scheduledDate)) {
+        try {
+          const pullRequest = await context.octokit.pulls.get({
+            owner,
+            repo,
+            pull_number: issue.number,
+          });
+
+          if (pullRequest.data.state === "open") {
+            const mergeResult = await context.octokit.pulls.merge({
+              owner,
+              repo,
+              pull_number: issue.number,
+            });
+
+            await context.octokit.issues.createComment(
+              context.issue({
+                body: `Merged pull request #${issue.number}`,
+              })
+            );
+          } else {
+            await context.octokit.issues.createComment(
+              context.issue({
+                body: `Pull request #${issue.number} is already closed or merged.`,
+              })
+            );
+          }
+        } catch (error) {
+          await context.octokit.issues.createComment(
+            context.issue({
+              body: `Error merging pull request #${issue.number}: ${error}`,
+            })
+          );
+        }
+      }
     }
-  }
 
-  app.on(["star.created", "star.deleted"], async (context) => {
-    const issueNumber = await findOrCreateStargazersIssue(context);
+    setTimeout(() => mergePullRequests(context), 60 * 1000);
+  };
 
+  app.on("issue_comment.created", async (context) => {
+    // await mergePullRequests(context);
+    // so that USERNAME is always defined within the scopt of the webhook event, even if an error occurs before it is assigned a value.
+    const USERNAME = context.payload.comment.user.login;
+    const COMMENT = context.payload.comment.body;
+    const AUTHOR_ROLE = context.payload.issue.author_association;
+    const ISSUE_NUMBER = context.payload.issue.number;
     const OWNER = context.payload.repository.owner.login;
     const REPO = context.payload.repository.name;
-    const STARGAZERS = context.payload.repository.stargazers_count;
-    const {
-      data: { login: USER },
-    } = await context.octokit.users.getByUsername({
-      username: context.payload.sender.login,
-    });
 
-    const totalStars = `${REPO} has ${
-      STARGAZERS > 1 ? `${STARGAZERS} stars` : `${STARGAZERS} star`
-    } now`;
-
-    let responsesForWhenAStarIsAdded = [
-      {
-        message: `Thank you so much for starring this repo, @${USER} :pray:, this means a lot! \n\n ${totalStars}`,
-      },
-      {
-        message: `Wow! Thanks for the star, @${USER}! :star2: \n\n ${totalStars}`,
-      },
-      {
-        message: `Thank you for showing your support by starring this repository, @${USER}! :raised_hands: \n\n ${totalStars}`,
-      },
-      {
-        message: `We appreciate your interest in this repository, @${USER}! Thank you for the star! :star: \n\n ${totalStars}`,
-      },
-      {
-        message: `Thanks for the star, @${USER}! It means a lot to us! :pray: \n\n ${totalStars}`,
-      },
-      {
-        message: `You just made our day, @${USER}! Thanks for the star! :heart_eyes: \n\n ${totalStars}`,
-      },
-    ];
-
-    let responsesForWhenAStarIsRemoved = [
-      {
-        message: `We're sad to see you go, @${USER}. Thanks for your support while you were here! :cry: \n\n ${totalStars}`,
-      },
-      {
-        message: `Thanks for your interest in this repository, @${USER}. We hope you'll come back soon! :wave: \n\n ${totalStars}`,
-      },
-      {
-        message: `Sorry to see you unstar the repository, @${USER}. We appreciate your support! :pray: \n\n ${totalStars}`,
-      },
-      {
-        message: `Thanks for the time you spent with us, @${USER}. We hope to see you again soon! :smile: \n\n ${totalStars}`,
-      },
-      {
-        message: `We'll miss you, @${USER}! Thanks for your support while you were here! :sob: \n\n ${totalStars}`,
-      },
-      {
-        message: `@${USER} just unstarred this repository :sob: :sob: \n\n ${totalStars};`,
-      },
-    ];
-
-    const randomIsStarred = Math.floor(
-      Math.random() * responsesForWhenAStarIsAdded.length
-    );
-    const randomIsStarRemoved = Math.floor(
-      Math.random() * responsesForWhenAStarIsRemoved.length
-    );
-
-    const commentBody =
-      context.name === "star" && context.payload.action === "created"
-        ? responsesForWhenAStarIsAdded[randomIsStarred].message
-        : responsesForWhenAStarIsRemoved[randomIsStarRemoved].message;
-
-    return context.octokit.issues.createComment({
+    const issue = await context.octokit.issues.get({
       owner: OWNER,
       repo: REPO,
-      issue_number: issueNumber,
-      body: commentBody,
+      issue_number: ISSUE_NUMBER,
     });
+
+    const labels = context.payload.issue.labels.map((label) => label.name);
+    const scheduledDateMatch = COMMENT.match(/(\d{4}-\d{2}-\d{2})/);
+    const scheduledTimeMatch = COMMENT.match(/(\d{2}:\d{2})/);
+
+    try {
+      if (
+        COMMENT.includes(`@${APP_NAME}`) &&
+        COMMENT.includes(MERGE_KEYWORD) &&
+        scheduledDateMatch &&
+        scheduledTimeMatch
+      ) {
+        if (AUTHOR_ROLE === "OWNER" || AUTHOR_ROLE === "COLLABORATOR") {
+          // get the scheduled date that is in this format "yyyy-mm-dd" from the comment body
+          // format it by removing the `-` char.
+          const dateArray = scheduledDateMatch[1].split("-");
+          // get the time from the comment body
+          const timeArray = scheduledTimeMatch[1].split(":");
+
+          // initialize new date object
+          const scheduledDate = new Date(
+            dateArray[0],
+            dateArray[1] - 1,
+            dateArray[2],
+            timeArray[0],
+            timeArray[1],
+            0
+          );
+
+          await context.octokit.issues.addLabels(
+            context.issue({
+              labels: [
+                "scheduled for merge",
+                `schedule: ${scheduledDateMatch[0]}`,
+              ],
+            })
+          );
+
+          await context.octokit.issues.createComment(
+            context.issue({
+              body: `Hi @${USERNAME}, your merge request has been scheduled for ${scheduledDate.toString()}`,
+            })
+          );
+        } else {
+          await context.octokit.issues.createComment(
+            context.issue({
+              body: `Hi @${USERNAME}, you do not have permission to merge pull requests in this repository`,
+            })
+          );
+        }
+      }
+
+      if (
+        !COMMENT.includes(MERGE_KEYWORD) &&
+        !scheduledDateMatch &&
+        !scheduledTimeMatch &&
+        (!labels.includes("scheduled for merge") ||
+          !labels.includes(/schedule: \d{4}-\d{2}-\d{2}/))
+      ) {
+        await context.octokit.issues.createComment(
+          context.issue({
+            body: `Hi @${USERNAME}, you need to pass the "merge" keyword and the date and time you'd want this pull request to be merged in this format: "YYYY-MM-DD hh:mm"`,
+          })
+        );
+      }
+    } catch (error) {
+      console.error(error);
+
+      await context.octokit.issues.createComment(
+        context.issue({
+          body: `Hi @${USERNAME}, something went wrong while I tried scheduling your merge request. Please try again later or contact an admin for assistance.`,
+        })
+      );
+    }
   });
 };

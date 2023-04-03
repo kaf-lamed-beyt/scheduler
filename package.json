@@ -1,11 +1,11 @@
 {
-  "name": "stargazer",
+  "name": "sheduler",
   "version": "1.0.0",
-  "private": true,
-  "description": "get notified when someone stars your project",
+  "private": false,
+  "description": "Publish any feature in your project or article in your developer blog, on a scheduled date/day",
   "author": "kaf-lamed-beyt",
   "license": "MIT",
-  "homepage": "https://github.com/kaf-lamed-beyt/stargazer",
+  "homepage": "https://github.com/kaf-lamed-beyt/sheduler",
   "keywords": [
     "probot",
     "github",
@@ -16,7 +16,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "probot": "^12.2.7"
+    "probot": "^12.2.7",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "nock": "^13.2.9",
